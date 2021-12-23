@@ -1,2 +1,2 @@
-# com.nomnom.regex-rename
- 
+# Regex Rename
+![Preview](./Assets~/preview.gif)
