@@ -98,10 +98,10 @@ namespace Nomnom.RegexRename.Editor {
 				foreach (Object obj in _objects) {
 					string newName = _regexObject.Replace(obj.name, _replacement);
 					
+					Undo.RecordObject(obj, "Changed name");
 					if (_inProjectMode) {
 						AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(obj), newName);
 					} else {
-						Undo.RecordObject(obj, "Changed name");
 						obj.name = newName;
 						PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
 					}
@@ -110,10 +110,15 @@ namespace Nomnom.RegexRename.Editor {
 				if (_inProjectMode) {
 					AssetDatabase.SaveAssets();
 					AssetDatabase.Refresh();
+					// Force repaint in case rename was performed by keyboard.
+					Repaint();
+				} else {
+					// Only close the window outside of "project mode". (Can't
+					// do it in project mode because we need to show the undo
+					// button.
+					Close();
+					return;
 				}
-
-				// Force repaint in case rename was performed by keyboard.
-				Repaint();
 			}
 
 			if (_inProjectMode && GUILayout.Button("Undo")) {
