@@ -67,6 +67,9 @@ namespace Nomnom.RegexRename.Editor {
 			_lastNames = null;
 		}
 
+		static bool IsKeyDown(KeyCode keyCode) =>
+			Event.current != null && Event.current.isKey && Event.current.keyCode == keyCode;
+
 		private void OnGUI() {
 			const string RegexName = nameof(RegexName);
 
@@ -87,7 +90,7 @@ namespace Nomnom.RegexRename.Editor {
 			bool validReplacement = !string.IsNullOrEmpty(_replacement);
 
 			GUI.enabled = _regexObject != null && validReplacement;
-			if (GUILayout.Button("Replace")) {
+			if (GUILayout.Button("Replace") || (GUI.enabled && IsKeyDown(KeyCode.Return))) {
 				foreach (Object obj in _objects) {
 					string newName = _regexObject.Replace(obj.name, _replacement);
 					
@@ -104,6 +107,9 @@ namespace Nomnom.RegexRename.Editor {
 					AssetDatabase.SaveAssets();
 					AssetDatabase.Refresh();
 				}
+
+				// Force repaint in case rename was performed by keyboard.
+				Repaint();
 			}
 
 			if (_inProjectMode && GUILayout.Button("Undo")) {
