@@ -8,7 +8,7 @@ namespace Nomnom.RegexRename.Editor {
 	/// </summary>
 	internal sealed class RenameWindow: EditorWindow {
 		private Object[] _objects;
-		private string _regex;
+		private string _regexInput;
 		private string _lastRegex;
 		private string _replacement;
 		private Regex _regexObject;
@@ -59,7 +59,7 @@ namespace Nomnom.RegexRename.Editor {
 
 		private void OnDestroy() {
 			_objects = null;
-			_regex = string.Empty;
+			_regexInput = string.Empty;
 			_lastRegex = string.Empty;
 			_regexObject = null;
 			_replacement = string.Empty;
@@ -71,20 +71,24 @@ namespace Nomnom.RegexRename.Editor {
 			Event.current != null && Event.current.isKey && Event.current.keyCode == keyCode;
 
 		private void OnGUI() {
-			const string RegexName = nameof(RegexName);
+			const string ReplacementName = nameof(ReplacementName);
 
-			GUI.SetNextControlName(RegexName);
-			_regex = EditorGUILayout.TextField("Pattern", _regex);
+			_regexInput = EditorGUILayout.TextField("Pattern (optional)", _regexInput);
+			GUI.SetNextControlName(ReplacementName);
 			_replacement = EditorGUILayout.TextField("Replacement", _replacement);
 
+			string regex = string.IsNullOrEmpty(_regexInput)
+				? ".+"
+				: _regexInput;
+
 			if (!_hasFocused) {
-				EditorGUI.FocusTextInControl(RegexName);
+				EditorGUI.FocusTextInControl(ReplacementName);
 				_hasFocused = true;
 			}
 
-			if (_regex != _lastRegex) {
-				_lastRegex = _regex;
-				_regexObject = string.IsNullOrEmpty(_regex) ? null : new Regex(_regex);
+			if (regex != _lastRegex) {
+				_lastRegex = regex;
+				_regexObject = string.IsNullOrEmpty(regex) ? null : new Regex(regex);
 			}
 
 			bool validReplacement = !string.IsNullOrEmpty(_replacement);
