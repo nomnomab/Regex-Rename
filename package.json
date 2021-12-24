@@ -1,6 +1,6 @@
 {
   "name": "com.nomnom.regex-rename",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "Regex Rename",
   "description": "This allows for you to bulk rename both project and scene objects with regex filtering.",
   "unity": "2020.3",
