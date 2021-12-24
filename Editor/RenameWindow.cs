@@ -8,13 +8,14 @@ namespace Nomnom.RegexRename.Editor {
 	/// </summary>
 	internal sealed class RenameWindow: EditorWindow {
 		private Object[] _objects;
-		private string _regex;
+		private string _regexInput;
 		private string _lastRegex;
 		private string _replacement;
 		private Regex _regexObject;
 		private Vector2 _scrollValue;
 		private bool _inProjectMode;
 		private string[] _lastNames;
+		private bool _hasFocused = false;
 		
 		[InitializeOnLoadMethod]
 		private static void Load() {
@@ -58,7 +59,7 @@ namespace Nomnom.RegexRename.Editor {
 
 		private void OnDestroy() {
 			_objects = null;
-			_regex = string.Empty;
+			_regexInput = string.Empty;
 			_lastRegex = string.Empty;
 			_regexObject = null;
 			_replacement = string.Empty;
@@ -66,26 +67,41 @@ namespace Nomnom.RegexRename.Editor {
 			_lastNames = null;
 		}
 
+		static bool IsKeyDown(KeyCode keyCode) =>
+			Event.current != null && Event.current.isKey && Event.current.keyCode == keyCode;
+
 		private void OnGUI() {
-			_regex = EditorGUILayout.TextField("Criteria", _regex);
+			const string ReplacementName = nameof(ReplacementName);
+
+			_regexInput = EditorGUILayout.TextField("Pattern (optional)", _regexInput);
+			GUI.SetNextControlName(ReplacementName);
 			_replacement = EditorGUILayout.TextField("Replacement", _replacement);
 
-			if (_regex != _lastRegex) {
-				_lastRegex = _regex;
-				_regexObject = string.IsNullOrEmpty(_regex) ? null : new Regex(_regex);
+			string regex = string.IsNullOrEmpty(_regexInput)
+				? ".+"
+				: _regexInput;
+
+			if (!_hasFocused) {
+				EditorGUI.FocusTextInControl(ReplacementName);
+				_hasFocused = true;
+			}
+
+			if (regex != _lastRegex) {
+				_lastRegex = regex;
+				_regexObject = string.IsNullOrEmpty(regex) ? null : new Regex(regex);
 			}
 
 			bool validReplacement = !string.IsNullOrEmpty(_replacement);
 
 			GUI.enabled = _regexObject != null && validReplacement;
-			if (GUILayout.Button("Replace")) {
+			if (GUILayout.Button("Replace") || (GUI.enabled && IsKeyDown(KeyCode.Return))) {
 				foreach (Object obj in _objects) {
 					string newName = _regexObject.Replace(obj.name, _replacement);
 					
+					Undo.RecordObject(obj, "Changed name");
 					if (_inProjectMode) {
 						AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(obj), newName);
 					} else {
-						Undo.RecordObject(obj, "Changed name");
 						obj.name = newName;
 						PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
 					}
@@ -94,6 +110,14 @@ namespace Nomnom.RegexRename.Editor {
 				if (_inProjectMode) {
 					AssetDatabase.SaveAssets();
 					AssetDatabase.Refresh();
+					// Force repaint in case rename was performed by keyboard.
+					Repaint();
+				} else {
+					// Only close the window outside of "project mode". (Can't
+					// do it in project mode because we need to show the undo
+					// button.
+					Close();
+					return;
 				}
 			}
 
