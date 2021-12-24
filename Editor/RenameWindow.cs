@@ -15,6 +15,7 @@ namespace Nomnom.RegexRename.Editor {
 		private Vector2 _scrollValue;
 		private bool _inProjectMode;
 		private string[] _lastNames;
+		private bool _hasFocused = false;
 		
 		[InitializeOnLoadMethod]
 		private static void Load() {
@@ -67,8 +68,16 @@ namespace Nomnom.RegexRename.Editor {
 		}
 
 		private void OnGUI() {
+			const string RegexName = nameof(RegexName);
+
+			GUI.SetNextControlName(RegexName);
 			_regex = EditorGUILayout.TextField("Criteria", _regex);
 			_replacement = EditorGUILayout.TextField("Replacement", _replacement);
+
+			if (!_hasFocused) {
+				EditorGUI.FocusTextInControl(RegexName);
+				_hasFocused = true;
+			}
 
 			if (_regex != _lastRegex) {
 				_lastRegex = _regex;
