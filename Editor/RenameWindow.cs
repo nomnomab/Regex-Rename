@@ -71,7 +71,7 @@ namespace Nomnom.RegexRename.Editor {
 			const string RegexName = nameof(RegexName);
 
 			GUI.SetNextControlName(RegexName);
-			_regex = EditorGUILayout.TextField("Criteria", _regex);
+			_regex = EditorGUILayout.TextField("Pattern", _regex);
 			_replacement = EditorGUILayout.TextField("Replacement", _replacement);
 
 			if (!_hasFocused) {
