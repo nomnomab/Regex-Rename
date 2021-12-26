@@ -38,6 +38,20 @@ namespace Nomnom.RegexRename.Editor {
 				return;
 			}
 
+			bool hasAsset = false;
+			bool hasScene = false;
+			foreach (Object obj in objects) {
+				if (AssetDatabase.IsMainAsset(obj)) {
+					hasAsset = true;
+				} else {
+					hasScene = true;
+				}
+			}
+
+			if (hasAsset && hasScene) {
+				return;
+			}
+
 			Open(objects);
 				
 			e.Use();
