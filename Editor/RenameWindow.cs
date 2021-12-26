@@ -14,7 +14,6 @@ namespace Nomnom.RegexRename.Editor {
 		private Regex _regexObject;
 		private Vector2 _scrollValue;
 		private bool _inProjectMode;
-		private string[] _lastNames;
 		private bool _hasFocused = false;
 		
 		[InitializeOnLoadMethod]
@@ -48,10 +47,6 @@ namespace Nomnom.RegexRename.Editor {
 			RenameWindow window = GetWindow<RenameWindow>("Rename");
 			window.OnDestroy();
 			window._objects = objects;
-			window._lastNames = new string[objects.Length];
-			for (int i = 0; i < objects.Length; i++) {
-				window._lastNames[i] = objects[i].name;
-			}
 			window.Show();
 
 			window._inProjectMode = AssetDatabase.IsMainAsset(objects[0]);
@@ -64,7 +59,6 @@ namespace Nomnom.RegexRename.Editor {
 			_regexObject = null;
 			_replacement = string.Empty;
 			_scrollValue = Vector2.zero;
-			_lastNames = null;
 		}
 
 		static bool IsKeyDown(KeyCode keyCode) =>
@@ -93,6 +87,10 @@ namespace Nomnom.RegexRename.Editor {
 
 			bool validReplacement = !string.IsNullOrEmpty(_replacement);
 
+			if (_inProjectMode) {
+				EditorGUILayout.HelpBox("Changes done to assets cannot be undone", MessageType.Warning);
+			}
+
 			GUI.enabled = _regexObject != null && validReplacement;
 			if (GUILayout.Button("Replace") || (GUI.enabled && IsKeyDown(KeyCode.Return))) {
 				foreach (Object obj in _objects) {
@@ -119,15 +117,6 @@ namespace Nomnom.RegexRename.Editor {
 					Close();
 					return;
 				}
-			}
-
-			if (_inProjectMode && GUILayout.Button("Undo")) {
-				for (int i = 0; i < _objects.Length; i++) {
-					AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(_objects[i]), _lastNames[i]);
-				}
-				
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh();
 			}
 			GUI.enabled = true;
 			
