@@ -50,9 +50,9 @@ namespace Nomnom.RegexRename.Editor {
       }
 
 #if NOM_RENAME_NO_MIX
-			if (hasAsset && hasScene) {
-				return;
-			}
+      if (hasAsset && hasScene) {
+        return;
+      }
 #endif
 
       Open(objects, hasAsset);
