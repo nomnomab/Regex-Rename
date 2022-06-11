@@ -50,9 +50,9 @@ namespace Nomnom.RegexRename.Editor {
       }
 
 #if NOM_RENAME_NO_MIX
-			if (hasAsset && hasScene) {
-				return;
-			}
+      if (hasAsset && hasScene) {
+        return;
+      }
 #endif
 
       Open(objects, hasAsset);
@@ -103,7 +103,7 @@ namespace Nomnom.RegexRename.Editor {
         _regexObject = string.IsNullOrEmpty(regex) ? null : new Regex(regex);
       }
 
-      bool validReplacement = !string.IsNullOrEmpty(_replacement);
+      bool validReplacement = !(string.IsNullOrEmpty(_regexInput) && string.IsNullOrEmpty(_replacement));
 
       if (_hasProjectAsset) {
         EditorGUILayout.HelpBox("Changes done to assets cannot be undone", MessageType.Warning);
